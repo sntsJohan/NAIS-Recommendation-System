@@ -1,7 +1,6 @@
-import spacy
 import tkinter as tk
-from tkinter import scrolledtext
-from tkinter import simpledialog  # Added for getting user's name
+from tkinter import simpledialog, scrolledtext, messagebox
+import spacy
 
 # Load the spaCy English model
 nlp = spacy.load("en_core_web_sm")
@@ -30,7 +29,13 @@ welcome_window = None  # Initialize welcome_window variable
 def submit_answer():
     global current_question_index, user_input_text, question_text, main_window, user_name
 
-    user_input = user_input_text.get("1.0", tk.END)
+    user_input = user_input_text.get("1.0", tk.END).strip()
+
+    # Check if the user input is empty
+    if not user_input:
+        # Show a message that the answer cannot be empty
+        show_message("Error", "Answer cannot be empty.")
+        return
 
     # Process the user input with spaCy
     doc = nlp(user_input.lower())
@@ -70,7 +75,11 @@ def ask_question():
 
 # Function to create the main UI for answering questions
 def create_main_ui():
-    global user_input_text, question_text, main_window, user_name
+    global user_input_text, question_text, main_window, user_name, welcome_window
+
+    # Destroy the welcome window if it exists
+    if welcome_window:
+        welcome_window.destroy()
 
     main_window = tk.Tk()
     main_window.title("Program Recommendation System")
@@ -108,15 +117,31 @@ def create_result_window(recommendation):
 
     result_window.mainloop()
 
-# Function to create the welcome window and get the user's name
-def create_welcome_window():
-    global main_window, user_name, welcome_window
+# Function to show a message dialog
+def show_message(title, message):
+    message_window = tk.Tk()
+    message_window.withdraw()  # Hide the main window
+    tk.messagebox.showinfo(title, message)
+    message_window.destroy()  # Close the hidden message window
 
-    welcome_window = tk.Tk()
-    welcome_window.title("Welcome to the NAIS Recommendation System")
+# Function to create the welcome window and get the user's name
+def create_username_input_window():
+    global user_name
+
+    username_input_window = tk.Tk()
+    username_input_window.title("Username Input")
 
     # Ask for the user's name
     user_name = simpledialog.askstring("Input", "What is your name?")
+
+    username_input_window.destroy()  # Close the username input window
+
+# Function to create the welcome window
+def create_welcome_window():
+    global user_name, welcome_window
+
+    welcome_window = tk.Tk()
+    welcome_window.title("Welcome to the NAIS Recommendation System")
 
     welcome_label_text = f"Welcome, {user_name}, to the NAIS Recommendation System!\n\n" \
                          "We're here to help you choose between Information Technology (IT) and Computer Science (CS).\n" \
@@ -125,16 +150,12 @@ def create_welcome_window():
     welcome_label = tk.Label(welcome_window, text=welcome_label_text, font=("Helvetica", 12), justify=tk.LEFT)
     welcome_label.pack(padx=10, pady=10)
 
-    start_test_button = tk.Button(welcome_window, text="Take Test", command=start_test)
+    start_test_button = tk.Button(welcome_window, text="Take Test", command=create_main_ui)
     start_test_button.pack(pady=10)
 
     welcome_window.mainloop()
 
-# Function to start the test and close the welcome window
-def start_test():
-    global main_window, welcome_window
-    create_main_ui()
-    welcome_window.destroy()  # Close the welcome window
-
-# Start the program by creating the welcome window
+# Start the program by creating the username input window
+create_username_input_window()
+# After getting the username, create the welcome window
 create_welcome_window()
