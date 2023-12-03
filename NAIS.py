@@ -1,6 +1,7 @@
 import spacy
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import simpledialog  # Added for getting user's name
 
 # Load the spaCy English model
 nlp = spacy.load("en_core_web_sm")
@@ -21,12 +22,13 @@ current_question_index = 0
 # Global variables for UI elements
 user_input_text = None
 question_text = None
-result_text = None
 main_window = None
+user_name = None  # Initialize user_name variable
+welcome_window = None  # Initialize welcome_window variable
 
 # Function to get the user input and display the next question or make a recommendation
 def submit_answer():
-    global current_question_index, user_input_text, question_text, result_text, main_window
+    global current_question_index, user_input_text, question_text, main_window, user_name
 
     user_input = user_input_text.get("1.0", tk.END)
 
@@ -36,9 +38,6 @@ def submit_answer():
     # Initialize counters for IT and CS keywords
     it_count = sum(1 for token in doc if token.text in it_keywords)
     cs_count = sum(1 for token in doc if token.text in cs_keywords)
-
-    # Display the recommendation in the result text widget
-    result_text.delete("1.0", tk.END)
 
     # Display the recommendation or move to the next question
     if current_question_index < len(questions) - 1:
@@ -62,7 +61,7 @@ def skip_question():
 
 # Function to ask the current question
 def ask_question():
-    global question_text, user_input_text
+    global question_text, user_input_text, user_name
     question_text.config(state=tk.NORMAL)  # Enable text widget for editing
     question_text.delete("1.0", tk.END)
     question_text.insert(tk.END, questions[current_question_index])
@@ -71,7 +70,7 @@ def ask_question():
 
 # Function to create the main UI for answering questions
 def create_main_ui():
-    global user_input_text, question_text, result_text, main_window
+    global user_input_text, question_text, main_window, user_name
 
     main_window = tk.Tk()
     main_window.title("Program Recommendation System")
@@ -81,21 +80,17 @@ def create_main_ui():
     question_text.grid(row=0, column=0, padx=10, pady=10, sticky="w")
     question_text.config(state=tk.DISABLED)  # Disable text widget for editing
 
-    # Create a text widget for user input
+    # Create a text widget for user input and center it
     user_input_text = scrolledtext.ScrolledText(main_window, width=40, height=10, wrap=tk.WORD)
-    user_input_text.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+    user_input_text.grid(row=1, column=0, padx=10, pady=10, sticky="n", columnspan=2)
 
-    # Create a button to trigger the next question or recommendation
-    submit_button = tk.Button(main_window, text="Submit Answer", command=submit_answer)
-    submit_button.grid(row=2, column=0, pady=10, sticky="w")
+    # Create a button to trigger the next question or recommendation with padding
+    submit_button = tk.Button(main_window, text="Submit Answer", command=submit_answer, padx=10, pady=5)
+    submit_button.grid(row=2, column=0, pady=10, padx=(20, 0), sticky="e")
 
-    # Create a skip button to go to the next question
-    skip_button = tk.Button(main_window, text="Skip Question", command=skip_question)
-    skip_button.grid(row=2, column=0, pady=10, padx=100, sticky="w")
-
-    # Create a text widget for displaying the recommendation
-    result_text = scrolledtext.ScrolledText(main_window, width=40, height=5, wrap=tk.WORD)
-    result_text.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+    # Create a skip button to go to the next question with padding
+    skip_button = tk.Button(main_window, text="Skip Question", command=skip_question, padx=10, pady=5)
+    skip_button.grid(row=2, column=1, pady=10, padx=(0, 20), sticky="w")
 
     # Start by asking the first question
     ask_question()
@@ -108,19 +103,22 @@ def create_result_window(recommendation):
     result_window = tk.Tk()
     result_window.title("Recommendation Result")
 
-    result_label = tk.Label(result_window, text=f"Based on your input, we recommend: {recommendation}", font=("Helvetica", 12))
+    result_label = tk.Label(result_window, text=f"Based on your input, {user_name}, we recommend: {recommendation}", font=("Helvetica", 12))
     result_label.pack(padx=10, pady=10)
 
     result_window.mainloop()
 
-# Function to create the welcome window
+# Function to create the welcome window and get the user's name
 def create_welcome_window():
-    global main_window
+    global main_window, user_name, welcome_window
 
     welcome_window = tk.Tk()
     welcome_window.title("Welcome to the NAIS Recommendation System")
 
-    welcome_label_text = "Welcome to the NAIS Recommendation System!\n\n" \
+    # Ask for the user's name
+    user_name = simpledialog.askstring("Input", "What is your name?")
+
+    welcome_label_text = f"Welcome, {user_name}, to the NAIS Recommendation System!\n\n" \
                          "We're here to help you choose between Information Technology (IT) and Computer Science (CS).\n" \
                          "Please click the 'Take Test' button to start the test."
 
@@ -134,14 +132,9 @@ def create_welcome_window():
 
 # Function to start the test and close the welcome window
 def start_test():
-    global main_window
+    global main_window, welcome_window
     create_main_ui()
     welcome_window.destroy()  # Close the welcome window
-
-# Welcome message
-welcome_message = "Welcome to the NAIS Recommendation System!\n\n" \
-                  "We're here to help you choose between Information Technology (IT) and Computer Science (CS).\n" \
-                  "Please click the 'Take Test' button to start the test."
 
 # Start the program by creating the welcome window
 create_welcome_window()
