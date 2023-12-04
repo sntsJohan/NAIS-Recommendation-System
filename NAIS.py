@@ -111,7 +111,7 @@ class LikertScaleSurvey:
                 self.label.config(text=self.courses_cs[self.current_course_idx])
         else:
             self.label.config(text="Survey complete")
-            self.submit_button.config(state=tk.NORMAL)  # Enable submit button after the last question
+            self.submit_button.config(state=tk.NORMAL)  # Enable submit button at the last question
 
     def submit_survey(self):
         submitted_responses = [var.get() for var in self.responses]
@@ -126,11 +126,11 @@ class LikertScaleSurvey:
         self.root.destroy()
 
     def check_button_state(self):
-        # Disable the submit button if not all questions are answered
-        if any(var.get() == 0 for var in self.responses):
-            self.submit_button.config(state=tk.DISABLED)
-        else:
+        # Enable the submit button only when the user is at the last question
+        if self.current_course_idx == len(self.courses_it) - 1:
             self.submit_button.config(state=tk.NORMAL)
+        else:
+            self.submit_button.config(state=tk.DISABLED)
 
 if __name__ == "__main__":
     root = tk.Tk()
