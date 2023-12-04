@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import IntVar, messagebox
+from tkinter import StringVar, messagebox
 import random
+import spacy
 
 class LikertScaleSurvey:
     def __init__(self, root):
@@ -100,6 +101,9 @@ class LikertScaleSurvey:
         # Likert scale labels for job role questions
         likert_labels_job_roles = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
 
+        # spaCy model for NLP processing
+        self.nlp = spacy.load("en_core_web_sm")
+
         # Concatenate IT and CS courses, then shuffle
         all_courses = self.courses_it + self.courses_cs
         random.shuffle(all_courses)
@@ -121,29 +125,57 @@ class LikertScaleSurvey:
         self.label = tk.Label(self.root, text=self.displayed_courses[self.current_course_idx]["course"], font=("Helvetica", 14), pady=10)
         self.label.grid(row=1, column=0, columnspan=6)
 
-        likert_var = IntVar()
-        likert_var.set(0)  # Default value
+        # Determine the appropriate widget based on the current stage
+        if self.current_stage == "Open Ended":
+            response_var = StringVar()
+            response_text = tk.Entry(self.root, textvariable=response_var, width=50)
+            response_text.grid(row=3, column=1, columnspan=4)
+        else:
+            likert_var = tk.IntVar()
+            likert_var.set(0)  # Default value
 
-        likert_labels = ["Not at all", "Slightly", "Neutral", "Moderately", "Extremely"]
+            # Determine the appropriate set of labels based on the current stage
+            if self.current_stage == "Job Roles":
+                likert_labels = self.likert_labels_job_roles
+            else:
+                likert_labels = ["Not at all", "Slightly", "Neutral", "Moderately", "Extremely"]
 
-        for scale_value, label_text in enumerate(likert_labels, start=1):
-            label = tk.Label(self.root, text=label_text, padx=5)
-            label.grid(row=2, column=scale_value, sticky=tk.W)
+            for scale_value, label_text in enumerate(likert_labels, start=1):
+                label = tk.Label(self.root, text=label_text, padx=5)
+                label.grid(row=2, column=scale_value, sticky=tk.W)
 
-        for scale_value in range(1, 6):
-            radio_button = tk.Radiobutton(
-                self.root,
-                text=str(scale_value),
-                variable=likert_var,
-                value=scale_value,
-                command=self.check_button_state
-            )
-            radio_button.grid(row=3, column=scale_value, padx=5)
+            for scale_value in range(1, 6):
+                radio_button = tk.Radiobutton(
+                    self.root,
+                    text=str(scale_value),
+                    variable=likert_var,
+                    value=scale_value,
+                    command=self.check_button_state
+                )
+                radio_button.grid(row=3, column=scale_value, padx=5)
 
         next_button = tk.Button(self.root, text="Next", command=self.next_stage)
         next_button.grid(row=4, column=0, columnspan=6, pady=10)
 
-        self.responses.append((likert_var, self.current_course_category()))
+        # Set the label text based on the current stage
+        if self.current_stage == "Courses":
+            job_roles_labels = self.general_it
+        elif self.current_stage == "General":
+            job_roles_labels = self.general_it
+        elif self.current_stage == "Job Roles":
+            job_roles_labels = self.job_roles_it
+        elif self.current_stage == "Open Ended":
+            job_roles_labels = []  # Adjust as needed for open-ended questions
+        else:
+            job_roles_labels = []  # Set to an empty list or handle other cases
+
+        self.label.config(text=job_roles_labels[self.current_question_idx])
+
+        if self.current_stage == "Open Ended":
+            self.responses.append((response_var, "Open Ended"))
+        else:
+            self.responses.append((likert_var, self.current_course_category()))
+
 
     def next_stage(self):
         if self.current_stage == "Courses":
@@ -175,8 +207,28 @@ class LikertScaleSurvey:
                 self.current_question_idx += 1
                 self.label.config(text=self.openendedquestions[self.current_question_idx])
             elif self.current_question_idx == len(self.openendedquestions) - 1:
+                self.analyze_open_ended_responses()
                 self.show_result()
 
+    def analyze_response(self, response):
+            # Process the response using spaCy
+            doc = self.nlp(response.lower())
+
+            # Define keywords for IT and CS
+            it_keywords = ["creative", "technology", "security", "implementation", "practical", "web development"]
+            cs_keywords = ["mathematical", "logical", "programming", "theoretical", "algorithms", "machine learning"]
+
+            # Count occurrences of keywords
+            it_counter = sum(1 for token in doc if token.text in it_keywords)
+            cs_counter = sum(1 for token in doc if token.text in cs_keywords)
+
+            # Update counters
+            self.counter_it += it_counter
+            self.counter_cs += cs_counter
+
+            # Move to the next question
+            self.next_stage()
+        
     def show_result(self):
         submitted_responses = [var.get() for var, _ in self.responses]
         # (unchanged code)
