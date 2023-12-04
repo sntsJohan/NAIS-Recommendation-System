@@ -119,22 +119,13 @@ def create_result_window(recommendation):
 
 # Function to show a message dialog
 def show_message(title, message):
-    message_window = tk.Tk()
-    message_window.withdraw()  # Hide the main window
     tk.messagebox.showinfo(title, message)
-    message_window.destroy()  # Close the hidden message window
 
 # Function to create the welcome window and get the user's name
 def create_username_input_window():
     global user_name
 
-    username_input_window = tk.Tk()
-    username_input_window.title("Username Input")
-
-    # Ask for the user's name
     user_name = simpledialog.askstring("Input", "What is your name?")
-
-    username_input_window.destroy()  # Close the username input window
 
 # Function to create the welcome window
 def create_welcome_window():
