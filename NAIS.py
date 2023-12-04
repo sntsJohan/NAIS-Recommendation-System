@@ -102,10 +102,12 @@ class LikertScaleSurvey:
         submitted_responses = [var.get() for var, _ in self.responses]
         weights = [units for _, units in self.responses]
 
-        for response, weight in zip(submitted_responses, weights):
-            if self.current_course_idx < 5:
-                self.counter_it += response * weight
+        for idx, (response, weight) in enumerate(zip(submitted_responses, weights)):
+            if idx < 5:
+                # Courses from the first five are IT courses
+                self.counter_it += response * (7 / 6) * weight
             else:
+                # Courses from the next five are CS courses
                 self.counter_cs += response * weight
 
         messagebox.showinfo("Survey Complete", f"Thank you for completing the survey!\n\nResults:\nBSIT Counter: {self.counter_it}\nBSCS Counter: {self.counter_cs}\n\nWe recommend you to take {'BSIT' if self.counter_it > self.counter_cs else 'BSCS'}.")
