@@ -64,6 +64,42 @@ class LikertScaleSurvey:
             "You like web development more than system development."
         ]
 
+        self.job_roles_cs = [
+            "Artificial Intelligence Engineer",
+            "Back-end Engineer",
+            "Computer Scientist",
+            "Data Scientist",
+            "Full Stack Developer",
+            "Information Security Analyst",
+            "Robotics Engineer",
+            "Software Developer",
+            "Software Engineer",
+            "Web Developer"
+        ]
+
+        self.job_roles_it = [
+            "Computer Technician",
+            "Cybersecurity Specialist",
+            "Database Administrator",
+            "Helpdesk Technician",
+            "IT Consultant",
+            "IT Project Manager",
+            "Network Administrator",
+            "Network Engineer",
+            "System Administrator",
+            "Technical Support Specialist"
+        ]
+
+        self.openendedquestions = [
+            "What experiences or activities have influenced your interest in the technological field?",
+            "How do you envision your career in the future?"
+        ]
+
+        # Likert scale labels for job role questions
+        likert_labels_job_roles = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+
+        
+
         # Concatenate IT and CS courses, then shuffle
         all_courses = self.courses_it + self.courses_cs
         random.shuffle(all_courses)
