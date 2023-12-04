@@ -8,27 +8,20 @@ class LikertScaleSurvey:
         self.root.title("Likert Scale Survey")
 
         self.courses_it = [
-            {"course": "Introduction to Human Computer Interaction", "units": 3},
-            {"course": "Human Computer Interaction 2", "units": 3},
-            {"course": "Data Structures and Algorithms", "units": 3},
+            {"course": "Introduction to Human Computer Interaction", "units": 6},
             {"course": "Web Systems and Technologies", "units": 3},
             {"course": "Modern Biology", "units": 3},
             {"course": "Applied Statistics", "units": 3},
             {"course": "Platform Technologies", "units": 3},
             {"course": "Integrative Programming and Technologies", "units": 3},
-            {"course": "Quantitative Methods (Including Modeling and Simulation)", "units": 3},
-            {"course": "Networking", "units": 3},
+            {"course": "Networking", "units": 6},
             {"course": "Advanced Database Systems", "units": 3},
-            {"course": "Systems Integration and Architecture 1", "units": 3},
+            {"course": "Systems Integration and Architecture", "units": 6},
             {"course": "Data Mining and Warehousing", "units": 3},
-            {"course": "Mobile Computing", "units": 3},
-            {"course": "Information Assurance and Security 1", "units": 3},
-            {"course": "Networking 2", "units": 3},
-            {"course": "Data Analytics", "units": 3},
+            {"course": "Information Assurance and Security 1", "units": 6},
+            {"course": "Data Analytic", "units": 3},
             {"course": "Social and Professional Issues", "units": 3},
             {"course": "Systems Administration and Maintenance", "units": 3},
-            {"course": "Information Assurance and Security 2", "units": 3},
-            {"course": "Systems Integration and Architecture 2", "units": 3},
         ]
 
         self.courses_cs = [
@@ -42,18 +35,14 @@ class LikertScaleSurvey:
             {"course": "Introduction to Numerical Analysis", "units": 3},
             {"course": "Calculus-Based Physics (Physics for Engineers)", "units": 4},
             {"course": "Operating Systems", "units": 3},
-            {"course": "Data Structures and Algorithms Analysis (CS 201A)", "units": 4},
             {"course": "Probability and Statistics (w/ Lab)", "units": 3},
             {"course": "Networks and Communications", "units": 3},
             {"course": "Intelligent Agents", "units": 3},
             {"course": "Automata Theory and Formal Languages", "units": 3},
-            {"course": "Software Engineering 1", "units": 3},
-            {"course": "Chemistry for Engineers", "units": 4},
-            {"course": "Modeling and Simulation", "units": 3},
+            {"course": "Software Engineering", "units": 6},
             {"course": "Algorithms and Complexity", "units": 3},
             {"course": "Human Computer Interaction", "units": 3},
             {"course": "Information Assurance and Security", "units": 3},
-            {"course": "Software Engineering 2", "units": 3},
             {"course": "Parallel and Distributed Computing", "units": 3},
         ]
 
