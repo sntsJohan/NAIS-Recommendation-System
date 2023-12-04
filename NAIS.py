@@ -1,152 +1,99 @@
 import tkinter as tk
-from tkinter import simpledialog, scrolledtext, messagebox
-import spacy
+from tkinter import IntVar
 
-# Load the spaCy English model
-nlp = spacy.load("en_core_web_sm")
+class LikertScaleSurvey:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Likert Scale Survey")
 
-# Define sets of keywords related to IT and CS
-it_keywords = {"information technology", "networking", "security", "database", "web development", "cloud computing", "system administration"}
-cs_keywords = {"computer science", "programming", "algorithms", "software development", "artificial intelligence", "machine learning", "data science"}
+        self.courses = [
+            "ITE 001 - Computer Programming 1",
+            "MATH 013A - Linear Algebra",
+            "MATH 006 - Discrete Mathematics",
+            "ITE 012 - Computer Programming 2",
+            "CS 201 - Data Structures and Algorithms",
+            "IT 004 - Web Systems and Technologies",
+            "IE 301B - Applied Statistics",
+            "ITE 014 - Information Management",
+            "IT 012 - Platform Technologies",
+            "IT 005 - Integrative Programming and Technologies",
+            "MATH 004 - Quantitative Methods (Including Modelling and Simulation)",
+            "IT 006 - Networking 1",
+            "IT 003 - Advanced Database Systems",
+            "TECH 101 - Technopreneurship",
+            "IT 009 - Systems Integration and Architecture 1",
+            "IT 401 - Data Mining and Warehousing",
+            "CS 409 - Mobile Computing",
+            "IT 001 - Information Assurance and Security 1",
+            "ITE 013 - Application Development and Emerging Technologies",
+            "IT 007 - Networking 2",
+            "ITE 030 - Data Analytics",
+            "ITE 015 - Social and Professional Issues",
+            "IT 008 - Systems and Administration Maintenance",
+            "IT 002 - Information Assurance and Security 2",
+            "ITE 010 - Systems Integration and Architecture 2",
+            "ITE 503 - Current Trends and Issues in Computing",
+            "IT 016 - Event Driven Programming",
+            "IT 015 - Introduction to Game Development",
+            "SAD 003 - System Analysis and Design",
+            "IT 014 - Human Computer Interaction 2",
+            "IT 011 - Integrative Programming Technologies 2",
+            "IT 013 - Web Systems and Technologies 2",
+            "CS 002 - Object Oriented Programming",
+            "ITE 404 - Introduction to Data Science in Python",
+            "SAP 501 - Business Analytics Using SAP Business Warehousing",
+            "ITE 405 - Applied Plotting, Charting, and Data Representation",
+            "ITE 406 - Applied Text Mining and Applied Social Network Analysis"
+        ]
 
-# Questions and current question index
-questions = [
-    "What aspects of technology interest you the most?",
-    "Are you more drawn to working with hardware, software, or both?",
-    "Do you have a preference for creating applications or managing information systems?",
-    "What programming languages or technologies are you familiar with or interested in?",
-]
-current_question_index = 0
+        self.current_course_idx = 0
+        self.responses = []
 
-# Global variables for UI elements
-user_input_text = None
-question_text = None
-main_window = None
-user_name = None  # Initialize user_name variable
-welcome_window = None  # Initialize welcome_window variable
+        self.create_widgets()
 
-# Function to get the user input and display the next question or make a recommendation
-def submit_answer():
-    global current_question_index, user_input_text, question_text, main_window, user_name
+    def create_widgets(self):
+        self.label = tk.Label(self.root, text=self.courses[self.current_course_idx], font=("Helvetica", 14), pady=10)
+        self.label.grid(row=0, column=0, columnspan=6)
 
-    user_input = user_input_text.get("1.0", tk.END).strip()
+        likert_var = IntVar()
+        likert_var.set(0)  # Default value
 
-    # Check if the user input is empty
-    if not user_input:
-        # Show a message that the answer cannot be empty
-        show_message("Error", "Answer cannot be empty.")
-        return
+        likert_labels = ["Not at all", "Slightly", "Neutral", "Moderately", "Extremely"]
 
-    # Process the user input with spaCy
-    doc = nlp(user_input.lower())
+        for scale_value, label_text in enumerate(likert_labels, start=1):
+            label = tk.Label(self.root, text=label_text, padx=5)
+            label.grid(row=1, column=scale_value, sticky=tk.W)
 
-    # Initialize counters for IT and CS keywords
-    it_count = sum(1 for token in doc if token.text in it_keywords)
-    cs_count = sum(1 for token in doc if token.text in cs_keywords)
+        for scale_value in range(1, 6):
+            radio_button = tk.Radiobutton(
+                self.root,
+                text=str(scale_value),
+                variable=likert_var,
+                value=scale_value
+            )
+            radio_button.grid(row=2, column=scale_value, padx=5)
 
-    # Display the recommendation or move to the next question
-    if current_question_index < len(questions) - 1:
-        current_question_index += 1
-        ask_question()
-    else:
-        # Determine the program recommendation based on keyword counts
-        if it_count > cs_count:
-            recommendation = "Bachelor of Science in Information Technology (BSIT)"
+        next_button = tk.Button(self.root, text="Next Course", command=self.next_course)
+        next_button.grid(row=3, column=2, pady=10)
+
+        submit_button = tk.Button(self.root, text="Submit", command=self.submit_survey)
+        submit_button.grid(row=3, column=3, pady=10)
+
+        self.responses.append(likert_var)
+
+    def next_course(self):
+        self.current_course_idx += 1
+        if self.current_course_idx < len(self.courses):
+            self.label.config(text=self.courses[self.current_course_idx])
         else:
-            recommendation = "Bachelor of Science in Computer Science (BSCS)"
+            self.label.config(text="Survey complete")
 
-        create_result_window(recommendation)
+    def submit_survey(self):
+        submitted_responses = [var.get() for var in self.responses]
+        print("Survey responses:", submitted_responses)
+        self.root.destroy()
 
-# Function to skip to the next question
-def skip_question():
-    global current_question_index
-    if current_question_index < len(questions) - 1:
-        current_question_index += 1
-        ask_question()
-
-# Function to ask the current question
-def ask_question():
-    global question_text, user_input_text, user_name
-    question_text.config(state=tk.NORMAL)  # Enable text widget for editing
-    question_text.delete("1.0", tk.END)
-    question_text.insert(tk.END, questions[current_question_index])
-    question_text.config(state=tk.DISABLED)  # Disable text widget after inserting question
-    user_input_text.delete("1.0", tk.END)
-
-# Function to create the main UI for answering questions
-def create_main_ui():
-    global user_input_text, question_text, main_window, user_name, welcome_window
-
-    # Destroy the welcome window if it exists
-    if welcome_window:
-        welcome_window.destroy()
-
-    main_window = tk.Tk()
-    main_window.title("Program Recommendation System")
-
-    # Create a text widget for displaying the current question
-    question_text = tk.Text(main_window, height=2, wrap=tk.WORD)
-    question_text.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-    question_text.config(state=tk.DISABLED)  # Disable text widget for editing
-
-    # Create a text widget for user input and center it
-    user_input_text = scrolledtext.ScrolledText(main_window, width=40, height=10, wrap=tk.WORD)
-    user_input_text.grid(row=1, column=0, padx=10, pady=10, sticky="n", columnspan=2)
-
-    # Create a button to trigger the next question or recommendation with padding
-    submit_button = tk.Button(main_window, text="Submit Answer", command=submit_answer, padx=10, pady=5)
-    submit_button.grid(row=2, column=0, pady=10, padx=(20, 0), sticky="e")
-
-    # Create a skip button to go to the next question with padding
-    skip_button = tk.Button(main_window, text="Skip Question", command=skip_question, padx=10, pady=5)
-    skip_button.grid(row=2, column=1, pady=10, padx=(0, 20), sticky="w")
-
-    # Start by asking the first question
-    ask_question()
-
-    # Start the main loop for the main UI
-    main_window.mainloop()
-
-# Function to create the result window with the recommendation
-def create_result_window(recommendation):
-    result_window = tk.Tk()
-    result_window.title("Recommendation Result")
-
-    result_label = tk.Label(result_window, text=f"Based on your input, {user_name}, we recommend: {recommendation}", font=("Helvetica", 12))
-    result_label.pack(padx=10, pady=10)
-
-    result_window.mainloop()
-
-# Function to show a message dialog
-def show_message(title, message):
-    tk.messagebox.showinfo(title, message)
-
-# Function to create the welcome window and get the user's name
-def create_username_input_window():
-    global user_name
-
-    user_name = simpledialog.askstring("Input", "What is your name?")
-
-# Function to create the welcome window
-def create_welcome_window():
-    global user_name, welcome_window
-
-    welcome_window = tk.Tk()
-    welcome_window.title("Welcome to the NAIS Recommendation System")
-
-    welcome_label_text = f"Welcome, {user_name}, to the NAIS Recommendation System!\n\n" \
-                         "We're here to help you choose between Information Technology (IT) and Computer Science (CS).\n" \
-                         "Please click the 'Take Test' button to start the test."
-
-    welcome_label = tk.Label(welcome_window, text=welcome_label_text, font=("Helvetica", 12), justify=tk.LEFT)
-    welcome_label.pack(padx=10, pady=10)
-
-    start_test_button = tk.Button(welcome_window, text="Take Test", command=create_main_ui)
-    start_test_button.pack(pady=10)
-
-    welcome_window.mainloop()
-
-# Start the program by creating the username input window
-create_username_input_window()
-# After getting the username, create the welcome window
-create_welcome_window()
+if __name__ == "__main__":
+    root = tk.Tk()
+    survey_app = LikertScaleSurvey(root)
+    root.mainloop()
