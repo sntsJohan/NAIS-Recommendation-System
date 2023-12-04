@@ -57,9 +57,12 @@ class LikertScaleSurvey:
             {"course": "Parallel and Distributed Computing", "units": 3},
         ]
 
-       # Shuffle the order of courses
-        random.shuffle(self.courses_it)
-        random.shuffle(self.courses_cs)
+        # Concatenate IT and CS courses, then shuffle
+        all_courses = self.courses_it + self.courses_cs
+        random.shuffle(all_courses)
+
+        # Randomly select 10 courses from the concatenated list
+        self.displayed_courses = random.sample(all_courses, 10)
 
         self.current_course_idx = 0
         self.responses = []
@@ -72,7 +75,7 @@ class LikertScaleSurvey:
         intro_label = tk.Label(self.root, text="Please indicate how you feel about each course on a scale from 1 to 5, where 1 is 'Not at all' and 5 is 'Extremely'.", font=("Helvetica", 12), pady=10)
         intro_label.grid(row=0, column=0, columnspan=6)
 
-        self.label = tk.Label(self.root, text=self.courses_it[self.current_course_idx]["course"], font=("Helvetica", 14), pady=10)
+        self.label = tk.Label(self.root, text=self.displayed_courses[self.current_course_idx]["course"], font=("Helvetica", 14), pady=10)
         self.label.grid(row=1, column=0, columnspan=6)
 
         likert_var = IntVar()
@@ -97,16 +100,12 @@ class LikertScaleSurvey:
         next_button = tk.Button(self.root, text="Next Course", command=self.next_course)
         next_button.grid(row=4, column=0, columnspan=6, pady=10)
 
-
         self.responses.append((likert_var, self.current_course_units()))
 
     def next_course(self):
         self.current_course_idx += 1
-        if self.current_course_idx < len(self.courses_it):
-            if random.random() < 0.5:  # 50% chance to switch between IT and CS courses
-                self.label.config(text=self.courses_it[self.current_course_idx]["course"])
-            else:
-                self.label.config(text=self.courses_cs[self.current_course_idx]["course"])
+        if self.current_course_idx < 10:
+            self.label.config(text=self.displayed_courses[self.current_course_idx]["course"])
         else:
             self.show_result()
 
@@ -115,7 +114,7 @@ class LikertScaleSurvey:
         weights = [units for _, units in self.responses]
 
         for response, weight in zip(submitted_responses, weights):
-            if self.current_course_idx < len(self.courses_it):
+            if self.current_course_idx < 5:
                 self.counter_it += response * weight
             else:
                 self.counter_cs += response * weight
@@ -126,15 +125,12 @@ class LikertScaleSurvey:
 
     def check_button_state(self):
         # Enable the "Next Course" button only when the user is not at the last question
-        if self.current_course_idx < len(self.courses_it) - 1:
+        if self.current_course_idx < 9:
             return
         self.next_course()
 
     def current_course_units(self):
-        if self.current_course_idx < len(self.courses_it):
-            return self.courses_it[self.current_course_idx]["units"]
-        else:
-            return self.courses_cs[self.current_course_idx]["units"]
+        return self.displayed_courses[self.current_course_idx]["units"]
 
 if __name__ == "__main__":
     root = tk.Tk()
