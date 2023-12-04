@@ -89,15 +89,16 @@ class LikertScaleSurvey:
                 self.root,
                 text=str(scale_value),
                 variable=likert_var,
-                value=scale_value
+                value=scale_value,
+                command=self.check_button_state
             )
             radio_button.grid(row=3, column=scale_value, padx=5)
 
         next_button = tk.Button(self.root, text="Next Course", command=self.next_course)
         next_button.grid(row=4, column=2, pady=10)
 
-        submit_button = tk.Button(self.root, text="Submit", command=self.submit_survey)
-        submit_button.grid(row=4, column=3, pady=10)
+        self.submit_button = tk.Button(self.root, text="Submit", command=self.submit_survey, state=tk.DISABLED)
+        self.submit_button.grid(row=4, column=3, pady=10)
 
         self.responses.append(likert_var)
 
@@ -110,6 +111,7 @@ class LikertScaleSurvey:
                 self.label.config(text=self.courses_cs[self.current_course_idx])
         else:
             self.label.config(text="Survey complete")
+            self.submit_button.config(state=tk.NORMAL)  # Enable submit button after the last question
 
     def submit_survey(self):
         submitted_responses = [var.get() for var in self.responses]
@@ -122,6 +124,13 @@ class LikertScaleSurvey:
         messagebox.showinfo("Survey Complete", f"Thank you for completing the survey!\n\nResults:\nBSIT Counter: {self.counter_it}\nBSCS Counter: {self.counter_cs}\n\nWe recommend you to take {'BSIT' if self.counter_it > self.counter_cs else 'BSCS'}.")
 
         self.root.destroy()
+
+    def check_button_state(self):
+        # Disable the submit button if not all questions are answered
+        if any(var.get() == 0 for var in self.responses):
+            self.submit_button.config(state=tk.DISABLED)
+        else:
+            self.submit_button.config(state=tk.NORMAL)
 
 if __name__ == "__main__":
     root = tk.Tk()
