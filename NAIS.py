@@ -6,6 +6,8 @@ class LikertScaleSurvey:
     def __init__(self, root):
         self.root = root
         self.root.title("Likert Scale Survey")
+        self.current_stage = "Courses"
+        self.current_question_idx = 0
 
         self.courses_it = [
             {"course": "Introduction to Human Computer Interaction", "units": 6},
@@ -145,41 +147,37 @@ class LikertScaleSurvey:
         self.responses.append((likert_var, self.current_course_units()))
 
     def next_stage(self):
-        if self.current_course_idx < 9:
-            # Move to the next course
-            self.current_course_idx += 1
-            self.label.config(text=self.displayed_courses[self.current_course_idx]["course"])
-            self.responses.append((self.responses[-1][0].get(), self.current_course_units()))
-        elif self.current_course_idx == 9:
-            # Move to general questions
-            self.label.config(text=self.general_it[0])
-            self.current_question_idx = 0
-            self.current_stage = "General"
-        elif self.current_stage == "General" and self.current_question_idx < len(self.general_it) - 1:
-            # Display general questions one by one
-            self.current_question_idx += 1
-            self.label.config(text=self.general_it[self.current_question_idx])
-        elif self.current_stage == "General" and self.current_question_idx == len(self.general_it) - 1:
-            # Move to job role questions
-            self.label.config(text=self.job_roles_it[0])
-            self.current_question_idx = 0
-            self.current_stage = "Job Roles"
-        elif self.current_stage == "Job Roles" and self.current_question_idx < len(self.job_roles_it) - 1:
-            # Display job role questions one by one
-            self.current_question_idx += 1
-            self.label.config(text=self.job_roles_it[self.current_question_idx])
-        elif self.current_stage == "Job Roles" and self.current_question_idx == len(self.job_roles_it) - 1:
-            # Move to open-ended questions
-            self.label.config(text=self.openendedquestions[0])
-            self.current_question_idx = 0
-            self.current_stage = "Open Ended"
-        elif self.current_stage == "Open Ended" and self.current_question_idx < len(self.openendedquestions) - 1:
-            # Display open-ended questions one by one
-            self.current_question_idx += 1
-            self.label.config(text=self.openendedquestions[self.current_question_idx])
-        elif self.current_stage == "Open Ended" and self.current_question_idx == len(self.openendedquestions) - 1:
-            # Show results
-            self.show_result()
+        if self.current_stage == "Courses":
+            if self.current_course_idx < 9:
+                self.current_course_idx += 1
+                self.label.config(text=self.displayed_courses[self.current_course_idx]["course"])
+            elif self.current_course_idx == 9:
+                self.current_stage = "General"
+                self.current_question_idx = 0
+                self.label.config(text=self.general_it[self.current_question_idx])
+        elif self.current_stage == "General":
+            if self.current_question_idx < len(self.general_it) - 1:
+                self.current_question_idx += 1
+                self.label.config(text=self.general_it[self.current_question_idx])
+            elif self.current_question_idx == len(self.general_it) - 1:
+                self.current_stage = "Job Roles"
+                self.current_question_idx = 0
+                self.label.config(text=self.job_roles_it[self.current_question_idx])
+        elif self.current_stage == "Job Roles":
+            if self.current_question_idx < len(self.job_roles_it) - 1:
+                self.current_question_idx += 1
+                self.label.config(text=self.job_roles_it[self.current_question_idx])
+            elif self.current_question_idx == len(self.job_roles_it) - 1:
+                self.current_stage = "Open Ended"
+                self.current_question_idx = 0
+                self.label.config(text=self.openendedquestions[self.current_question_idx])
+        elif self.current_stage == "Open Ended":
+            if self.current_question_idx < len(self.openendedquestions) - 1:
+                self.current_question_idx += 1
+                self.label.config(text=self.openendedquestions[self.current_question_idx])
+            elif self.current_question_idx == len(self.openendedquestions) - 1:
+                self.show_result()
+
 
     def show_result(self):
         submitted_responses = [var.get() for var, _ in self.responses]
