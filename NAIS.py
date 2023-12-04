@@ -57,7 +57,7 @@ class LikertScaleSurvey:
             {"course": "Parallel and Distributed Computing", "units": 3},
         ]
 
-        # Shuffle the order of courses
+       # Shuffle the order of courses
         random.shuffle(self.courses_it)
         random.shuffle(self.courses_cs)
 
@@ -95,10 +95,8 @@ class LikertScaleSurvey:
             radio_button.grid(row=3, column=scale_value, padx=5)
 
         next_button = tk.Button(self.root, text="Next Course", command=self.next_course)
-        next_button.grid(row=4, column=2, pady=10)
+        next_button.grid(row=4, column=0, columnspan=6, pady=10)
 
-        self.submit_button = tk.Button(self.root, text="Submit", command=self.submit_survey, state=tk.DISABLED)
-        self.submit_button.grid(row=4, column=3, pady=10)
 
         self.responses.append((likert_var, self.current_course_units()))
 
@@ -110,10 +108,9 @@ class LikertScaleSurvey:
             else:
                 self.label.config(text=self.courses_cs[self.current_course_idx]["course"])
         else:
-            self.label.config(text="Survey complete")
-            self.submit_button.config(state=tk.NORMAL)  # Enable submit button after the last question
+            self.show_result()
 
-    def submit_survey(self):
+    def show_result(self):
         submitted_responses = [var.get() for var, _ in self.responses]
         weights = [units for _, units in self.responses]
 
@@ -128,11 +125,10 @@ class LikertScaleSurvey:
         self.root.destroy()
 
     def check_button_state(self):
-        # Enable the submit button only when the user is at the last question
-        if self.current_course_idx == len(self.courses_it) - 1:
-            self.submit_button.config(state=tk.NORMAL)
-        else:
-            self.submit_button.config(state=tk.DISABLED)
+        # Enable the "Next Course" button only when the user is not at the last question
+        if self.current_course_idx < len(self.courses_it) - 1:
+            return
+        self.next_course()
 
     def current_course_units(self):
         if self.current_course_idx < len(self.courses_it):
