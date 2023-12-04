@@ -8,53 +8,53 @@ class LikertScaleSurvey:
         self.root.title("Likert Scale Survey")
 
         self.courses_it = [
-            "Introduction to Human Computer Interaction",
-            "Human Computer Interaction 2",
-            "Data Structures and Algorithms",
-            "Web Systems and Technologies",
-            "Modern Biology",
-            "Applied Statistics",
-            "Information Management",
-            "Platform Technologies",
-            "Integrative Programming and Technologies",
-            "Quantitative Methods (Including Modeling and Simulation)",
-            "Networking",
-            "Advanced Database Systems",
-            "Systems Integration and Architecture 1",
-            "Data Mining and Warehousing",
-            "Information Assurance and Security 1",
-            "Networking",
-            "Data Analytic",
-            "Social and Professional Issues",
-            "Systems Administration and Maintenance",
-            "Information Assurance and Security 2",
-            "Systems Integration and Architecture 2"
+            {"course": "Introduction to Human Computer Interaction", "units": 3},
+            {"course": "Human Computer Interaction 2", "units": 3},
+            {"course": "Data Structures and Algorithms", "units": 3},
+            {"course": "Web Systems and Technologies", "units": 3},
+            {"course": "Modern Biology", "units": 3},
+            {"course": "Applied Statistics", "units": 3},
+            {"course": "Platform Technologies", "units": 3},
+            {"course": "Integrative Programming and Technologies", "units": 3},
+            {"course": "Quantitative Methods (Including Modeling and Simulation)", "units": 3},
+            {"course": "Networking", "units": 3},
+            {"course": "Advanced Database Systems", "units": 3},
+            {"course": "Systems Integration and Architecture 1", "units": 3},
+            {"course": "Data Mining and Warehousing", "units": 3},
+            {"course": "Mobile Computing", "units": 3},
+            {"course": "Information Assurance and Security 1", "units": 3},
+            {"course": "Networking 2", "units": 3},
+            {"course": "Data Analytics", "units": 3},
+            {"course": "Social and Professional Issues", "units": 3},
+            {"course": "Systems Administration and Maintenance", "units": 3},
+            {"course": "Information Assurance and Security 2", "units": 3},
+            {"course": "Systems Integration and Architecture 2", "units": 3},
         ]
 
         self.courses_cs = [
-            "Number Theory",
-            "Symbolic Logic",
-            "Differential Calculus",
-            "Principles of Programming Languages",
-            "Computer Architecture and Organization",
-            "Integral Calculus",
-            "Advanced Object Oriented Programming",
-            "Introduction to Numerical Analysis",
-            "Calculus-Based Physics",
-            "Operating Systems",
-            "Data Structures and Algorithms Analysis",
-            "Probability and Statistics (w/ Lab)",
-            "Networks and Communications",
-            "Intelligent Agents",
-            "Automata Theory and Formal Languages",
-            "Software Engineering 1",
-            "Chemistry for Engineers",
-            "Modeling and Simulation",
-            "Algorithms and Complexity",
-            "Human Computer Interaction",
-            "Information Assurance and Security",
-            "Software Engineering 2",
-            "Parallel and Distributed Computing"
+            {"course": "Number Theory", "units": 3},
+            {"course": "Symbolic Logic", "units": 3},
+            {"course": "Differential Calculus", "units": 4},
+            {"course": "Principles of Programming Languages", "units": 3},
+            {"course": "Computer Architecture and Organization", "units": 3},
+            {"course": "Integral Calculus", "units": 4},
+            {"course": "Advanced Object-Oriented Programming", "units": 3},
+            {"course": "Introduction to Numerical Analysis", "units": 3},
+            {"course": "Calculus-Based Physics (Physics for Engineers)", "units": 4},
+            {"course": "Operating Systems", "units": 3},
+            {"course": "Data Structures and Algorithms Analysis (CS 201A)", "units": 4},
+            {"course": "Probability and Statistics (w/ Lab)", "units": 3},
+            {"course": "Networks and Communications", "units": 3},
+            {"course": "Intelligent Agents", "units": 3},
+            {"course": "Automata Theory and Formal Languages", "units": 3},
+            {"course": "Software Engineering 1", "units": 3},
+            {"course": "Chemistry for Engineers", "units": 4},
+            {"course": "Modeling and Simulation", "units": 3},
+            {"course": "Algorithms and Complexity", "units": 3},
+            {"course": "Human Computer Interaction", "units": 3},
+            {"course": "Information Assurance and Security", "units": 3},
+            {"course": "Software Engineering 2", "units": 3},
+            {"course": "Parallel and Distributed Computing", "units": 3},
         ]
 
         # Shuffle the order of courses
@@ -72,7 +72,7 @@ class LikertScaleSurvey:
         intro_label = tk.Label(self.root, text="Please indicate how you feel about each course on a scale from 1 to 5, where 1 is 'Not at all' and 5 is 'Extremely'.", font=("Helvetica", 12), pady=10)
         intro_label.grid(row=0, column=0, columnspan=6)
 
-        self.label = tk.Label(self.root, text=self.courses_it[self.current_course_idx], font=("Helvetica", 14), pady=10)
+        self.label = tk.Label(self.root, text=self.courses_it[self.current_course_idx]["course"], font=("Helvetica", 14), pady=10)
         self.label.grid(row=1, column=0, columnspan=6)
 
         likert_var = IntVar()
@@ -100,26 +100,28 @@ class LikertScaleSurvey:
         self.submit_button = tk.Button(self.root, text="Submit", command=self.submit_survey, state=tk.DISABLED)
         self.submit_button.grid(row=4, column=3, pady=10)
 
-        self.responses.append(likert_var)
+        self.responses.append((likert_var, self.current_course_units()))
 
     def next_course(self):
         self.current_course_idx += 1
         if self.current_course_idx < len(self.courses_it):
             if random.random() < 0.5:  # 50% chance to switch between IT and CS courses
-                self.label.config(text=self.courses_it[self.current_course_idx])
+                self.label.config(text=self.courses_it[self.current_course_idx]["course"])
             else:
-                self.label.config(text=self.courses_cs[self.current_course_idx])
+                self.label.config(text=self.courses_cs[self.current_course_idx]["course"])
         else:
             self.label.config(text="Survey complete")
-            self.submit_button.config(state=tk.NORMAL)  # Enable submit button at the last question
+            self.submit_button.config(state=tk.NORMAL)  # Enable submit button after the last question
 
     def submit_survey(self):
-        submitted_responses = [var.get() for var in self.responses]
-        for response in submitted_responses:
+        submitted_responses = [var.get() for var, _ in self.responses]
+        weights = [units for _, units in self.responses]
+
+        for response, weight in zip(submitted_responses, weights):
             if self.current_course_idx < len(self.courses_it):
-                self.counter_it += response
+                self.counter_it += response * weight
             else:
-                self.counter_cs += response
+                self.counter_cs += response * weight
 
         messagebox.showinfo("Survey Complete", f"Thank you for completing the survey!\n\nResults:\nBSIT Counter: {self.counter_it}\nBSCS Counter: {self.counter_cs}\n\nWe recommend you to take {'BSIT' if self.counter_it > self.counter_cs else 'BSCS'}.")
 
@@ -131,6 +133,12 @@ class LikertScaleSurvey:
             self.submit_button.config(state=tk.NORMAL)
         else:
             self.submit_button.config(state=tk.DISABLED)
+
+    def current_course_units(self):
+        if self.current_course_idx < len(self.courses_it):
+            return self.courses_it[self.current_course_idx]["units"]
+        else:
+            return self.courses_cs[self.current_course_idx]["units"]
 
 if __name__ == "__main__":
     root = tk.Tk()
