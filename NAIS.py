@@ -46,6 +46,24 @@ class LikertScaleSurvey:
             {"course": "Parallel and Distributed Computing", "units": 3},
         ]
 
+        self.general_cs = [
+            "You enjoy solving complex mathematical and logical problems.",
+            "Creating something new piques your interest.",
+            "Exploring the mathematical foundations of computing, such as discrete mathematics and formal logic, appeals to you.",
+            "Finding the most efficient solution to a programming challenge is a satisfying endeavor for you.",
+            "Are you interested in the theoretical aspects of artificial intelligence and machine learning?",
+            "Do you prefer a career path that involves more theoretical research and innovation?"
+        ]
+
+        self.general_it = [
+            "You are interested in the creative aspects of designing user-friendly software interfaces.",
+            "You see yourself applying existing technologies to solve real-world challenges.",
+            "Ensuring the security and integrity of computer systems and networks is a priority for you.",
+            "Managing and implementing technology solutions is more appealing to you than focusing on theoretical aspects like algorithms.",
+            "You prefer hands-on, practical problem-solving related to technology and computer systems.",
+            "You like web development more than system development."
+        ]
+
         # Concatenate IT and CS courses, then shuffle
         all_courses = self.courses_it + self.courses_cs
         random.shuffle(all_courses)
@@ -105,7 +123,7 @@ class LikertScaleSurvey:
         for idx, (response, weight) in enumerate(zip(submitted_responses, weights)):
             if idx < 5:
                 # Courses from the first five are IT courses
-                self.counter_it += response * (7 / 6) * weight
+                self.counter_it += response * (17 / 18) * weight
             else:
                 # Courses from the next five are CS courses
                 self.counter_cs += response * weight
