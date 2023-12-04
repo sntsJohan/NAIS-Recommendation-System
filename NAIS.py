@@ -10,42 +10,42 @@ class LikertScaleSurvey:
         self.current_question_idx = 0
 
         self.courses_it = [
-            {"course": "Introduction to Human Computer Interaction", "units": 6},
-            {"course": "Web Systems and Technologies", "units": 3},
-            {"course": "Modern Biology", "units": 3},
-            {"course": "Applied Statistics", "units": 3},
-            {"course": "Platform Technologies", "units": 3},
-            {"course": "Integrative Programming and Technologies", "units": 3},
-            {"course": "Networking", "units": 6},
-            {"course": "Advanced Database Systems", "units": 3},
-            {"course": "Systems Integration and Architecture", "units": 6},
-            {"course": "Data Mining and Warehousing", "units": 3},
-            {"course": "Information Assurance and Security 1", "units": 6},
-            {"course": "Data Analytic", "units": 3},
-            {"course": "Social and Professional Issues", "units": 3},
-            {"course": "Systems Administration and Maintenance", "units": 3},
+            {"course": "Introduction to Human Computer Interaction"},
+            {"course": "Web Systems and Technologies"},
+            {"course": "Modern Biology"},
+            {"course": "Applied Statistics"},
+            {"course": "Platform Technologies"},
+            {"course": "Integrative Programming and Technologies"},
+            {"course": "Networking"},
+            {"course": "Advanced Database Systems"},
+            {"course": "Systems Integration and Architecture"},
+            {"course": "Data Mining and Warehousing"},
+            {"course": "Information Assurance and Security 1"},
+            {"course": "Data Analytic"},
+            {"course": "Social and Professional Issues"},
+            {"course": "Systems Administration and Maintenance"},
         ]
 
         self.courses_cs = [
-            {"course": "Number Theory", "units": 3},
-            {"course": "Symbolic Logic", "units": 3},
-            {"course": "Differential Calculus", "units": 4},
-            {"course": "Principles of Programming Languages", "units": 3},
-            {"course": "Computer Architecture and Organization", "units": 3},
-            {"course": "Integral Calculus", "units": 4},
-            {"course": "Advanced Object-Oriented Programming", "units": 3},
-            {"course": "Introduction to Numerical Analysis", "units": 3},
-            {"course": "Calculus-Based Physics (Physics for Engineers)", "units": 4},
-            {"course": "Operating Systems", "units": 3},
-            {"course": "Probability and Statistics (w/ Lab)", "units": 3},
-            {"course": "Networks and Communications", "units": 3},
-            {"course": "Intelligent Agents", "units": 3},
-            {"course": "Automata Theory and Formal Languages", "units": 3},
-            {"course": "Software Engineering", "units": 6},
-            {"course": "Algorithms and Complexity", "units": 3},
-            {"course": "Human Computer Interaction", "units": 3},
-            {"course": "Information Assurance and Security", "units": 3},
-            {"course": "Parallel and Distributed Computing", "units": 3},
+            {"course": "Number Theory"},
+            {"course": "Symbolic Logic"},
+            {"course": "Differential Calculus"},
+            {"course": "Principles of Programming Languages"},
+            {"course": "Computer Architecture and Organization"},
+            {"course": "Integral Calculus"},
+            {"course": "Advanced Object-Oriented Programming"},
+            {"course": "Introduction to Numerical Analysis"},
+            {"course": "Calculus-Based Physics (Physics for Engineers)"},
+            {"course": "Operating Systems"},
+            {"course": "Probability and Statistics (w/ Lab)"},
+            {"course": "Networks and Communications"},
+            {"course": "Intelligent Agents"},
+            {"course": "Automata Theory and Formal Languages"},
+            {"course": "Software Engineering"},
+            {"course": "Algorithms and Complexity"},
+            {"course": "Human Computer Interaction"},
+            {"course": "Information Assurance and Security"},
+            {"course": "Parallel and Distributed Computing"},
         ]
 
         self.general_cs = [
@@ -100,7 +100,6 @@ class LikertScaleSurvey:
         # Likert scale labels for job role questions
         likert_labels_job_roles = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
 
-
         # Concatenate IT and CS courses, then shuffle
         all_courses = self.courses_it + self.courses_cs
         random.shuffle(all_courses)
@@ -144,7 +143,7 @@ class LikertScaleSurvey:
         next_button = tk.Button(self.root, text="Next", command=self.next_stage)
         next_button.grid(row=4, column=0, columnspan=6, pady=10)
 
-        self.responses.append((likert_var, self.current_course_units()))
+        self.responses.append((likert_var, self.current_course_category()))
 
     def next_stage(self):
         if self.current_stage == "Courses":
@@ -178,7 +177,6 @@ class LikertScaleSurvey:
             elif self.current_question_idx == len(self.openendedquestions) - 1:
                 self.show_result()
 
-
     def show_result(self):
         submitted_responses = [var.get() for var, _ in self.responses]
         # (unchanged code)
@@ -193,8 +191,8 @@ class LikertScaleSurvey:
             return
         self.next_stage()
 
-    def current_course_units(self):
-        return self.displayed_courses[self.current_course_idx]["units"]
+    def current_course_category(self):
+        return "IT" if self.displayed_courses[self.current_course_idx] in self.courses_it else "CS"
 
 if __name__ == "__main__":
     root = tk.Tk()
