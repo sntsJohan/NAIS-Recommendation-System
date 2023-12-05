@@ -1,252 +1,138 @@
-import tkinter as tk
-from tkinter import StringVar, messagebox
-import random
+import numpy as np
 import spacy
 
-class LikertScaleSurvey:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Likert Scale Survey")
-        self.current_stage = "Courses"
-        self.current_question_idx = 0
+# Load English tokenizer, tagger, parser, NER, and word vectors
+nlp = spacy.load("en_core_web_sm")
 
-        self.courses_it = [
-            {"course": "Introduction to Human Computer Interaction"},
-            {"course": "Web Systems and Technologies"},
-            {"course": "Modern Biology"},
-            {"course": "Applied Statistics"},
-            {"course": "Platform Technologies"},
-            {"course": "Integrative Programming and Technologies"},
-            {"course": "Networking"},
-            {"course": "Advanced Database Systems"},
-            {"course": "Systems Integration and Architecture"},
-            {"course": "Data Mining and Warehousing"},
-            {"course": "Information Assurance and Security 1"},
-            {"course": "Data Analytic"},
-            {"course": "Social and Professional Issues"},
-            {"course": "Systems Administration and Maintenance"},
-        ]
+# Keywords for Computer Science (CS) and Information Technology (IT) based on open-ended questions
+cs_keywords = [
+    "programming projects", "coding challenges", "algorithmic problem-solving",
+    "computer science courses", "mathematics courses", "logic puzzles", 
+    "cryptography challenges", "security workshops", "hackathons", 
+    "software development internships", "machine learning projects", 
+    "artificial intelligence courses", "data science experiences", 
+    "web development projects", "database management projects", 
+    "computer graphics exploration", "computer vision experiments", 
+    "natural language processing projects", "networking projects", 
+    "operating systems exploration", "computer architecture studies", 
+    "robotics projects", "game development experiences", 
+    "virtual reality experiments", "augmented reality projects", 
+    "scientific computing endeavors", "numerical analysis projects", 
+    "big data exploration", "internet of things (IoT) experiments", 
+    "blockchain projects", "quantum computing studies", 
+    "ethical hacking experiences", "digital forensics projects", 
+    "computer ethics exploration", "technology-related volunteering", 
+    "participation in coding communities", "programming language exploration", 
+    "contributions to open-source projects", "coding bootcamps", 
+    "technology-related certifications", "mentorship in computer science", 
+    "technology-related workshops", "coding competitions", 
+    "research in computational biology", "computer-assisted design projects", 
+    "technology-related blogs", "social network analysis projects"
+]
 
-        self.courses_cs = [
-            {"course": "Number Theory"},
-            {"course": "Symbolic Logic"},
-            {"course": "Differential Calculus"},
-            {"course": "Principles of Programming Languages"},
-            {"course": "Computer Architecture and Organization"},
-            {"course": "Integral Calculus"},
-            {"course": "Advanced Object-Oriented Programming"},
-            {"course": "Introduction to Numerical Analysis"},
-            {"course": "Calculus-Based Physics (Physics for Engineers)"},
-            {"course": "Operating Systems"},
-            {"course": "Probability and Statistics (w/ Lab)"},
-            {"course": "Networks and Communications"},
-            {"course": "Intelligent Agents"},
-            {"course": "Automata Theory and Formal Languages"},
-            {"course": "Software Engineering"},
-            {"course": "Algorithms and Complexity"},
-            {"course": "Human Computer Interaction"},
-            {"course": "Information Assurance and Security"},
-            {"course": "Parallel and Distributed Computing"},
-        ]
+it_keywords = [
+    "IT infrastructure management", "network administration experiences", 
+    "systems analysis projects", "database management experiences", 
+    "web development for career goals", "cloud computing projects", 
+    "cybersecurity experiences", "IT consulting experiences", 
+    "business analysis in IT", "user experience improvement projects", 
+    "human-computer interaction studies", "mobile app development for career", 
+    "e-commerce technology exploration", "IT project management experiences", 
+    "IT governance understanding", "IT strategy planning", 
+    "technology integration projects", "IT service management experiences", 
+    "IT risk management projects", "IT compliance understanding", 
+    "data governance experiences", "data privacy awareness", 
+    "digital transformation experiences", "IoT projects for career goals", 
+    "artificial intelligence applications in IT", "blockchain in IT experiences", 
+    "augmented reality in IT projects", "virtual reality in IT experiences", 
+    "health IT projects", "educational technology exploration", 
+    "telecommunications experiences", "wireless technologies exploration", 
+    "network security projects", "ethical hacking in IT experiences", 
+    "digital forensics in IT projects", "IT ethics understanding", 
+    "IT law awareness", "social implications of IT understanding", 
+    "IT for sustainability projects", "IT for social change projects", 
+    "IT in healthcare projects", "IT in finance projects", 
+    "IT in education projects", "future technology trends awareness"
+]
 
-        self.general_cs = [
-            "You enjoy solving complex mathematical and logical problems.",
-            "Creating something new piques your interest.",
-            "Exploring the mathematical foundations of computing, such as discrete mathematics and formal logic, appeals to you.",
-            "Finding the most efficient solution to a programming challenge is a satisfying endeavor for you.",
-            "Are you interested in the theoretical aspects of artificial intelligence and machine learning?",
-            "Do you prefer a career path that involves more theoretical research and innovation?"
-        ]
+    
+def likert_scale_input(question):
+    likert_scale = {
+        '1': 'Not Interested at All',
+        '2': 'Slightly Interested',
+        '3': 'Moderately Interested',
+        '4': 'Very Interested',
+        '5': 'Extremely Interested'
+    }
 
-        self.general_it = [
-            "You are interested in the creative aspects of designing user-friendly software interfaces.",
-            "You see yourself applying existing technologies to solve real-world challenges.",
-            "Ensuring the security and integrity of computer systems and networks is a priority for you.",
-            "Managing and implementing technology solutions is more appealing to you than focusing on theoretical aspects like algorithms.",
-            "You prefer hands-on, practical problem-solving related to technology and computer systems.",
-            "You like web development more than system development."
-        ]
+    print(question)
+    for key, value in likert_scale.items():
+        print(f'[{key}] {value}')
 
-        self.job_roles_cs = [
-            "Artificial Intelligence Engineer",
-            "Back-end Engineer",
-            "Computer Scientist",
-            "Data Scientist",
-            "Full Stack Developer",
-            "Information Security Analyst",
-            "Robotics Engineer",
-            "Software Developer",
-            "Software Engineer",
-            "Web Developer"
-        ]
-
-        self.job_roles_it = [
-            "Computer Technician",
-            "Cybersecurity Specialist",
-            "Database Administrator",
-            "Helpdesk Technician",
-            "IT Consultant",
-            "IT Project Manager",
-            "Network Administrator",
-            "Network Engineer",
-            "System Administrator",
-            "Technical Support Specialist"
-        ]
-
-        self.openendedquestions = [
-            "What experiences or activities have influenced your interest in the technological field?",
-            "How do you envision your career in the future?"
-        ]
-
-        # Likert scale labels for job role questions
-        likert_labels_job_roles = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-
-        # spaCy model for NLP processing
-        self.nlp = spacy.load("en_core_web_sm")
-
-        # Concatenate IT and CS courses, then shuffle
-        all_courses = self.courses_it + self.courses_cs
-        random.shuffle(all_courses)
-
-        # Randomly select 10 courses from the concatenated list
-        self.displayed_courses = random.sample(all_courses, 10)
-
-        self.current_course_idx = 0
-        self.responses = []
-        self.counter_it = 0
-        self.counter_cs = 0
-
-        self.create_widgets()
-
-    def create_widgets(self):
-        intro_label = tk.Label(self.root, text="Please indicate how you feel about each course on a scale from 1 to 5, where 1 is 'Not at all' and 5 is 'Extremely'.", font=("Helvetica", 12), pady=10)
-        intro_label.grid(row=0, column=0, columnspan=6)
-
-        self.label = tk.Label(self.root, text=self.displayed_courses[self.current_course_idx]["course"], font=("Helvetica", 14), pady=10)
-        self.label.grid(row=1, column=0, columnspan=6)
-
-        # Determine the appropriate widget based on the current stage
-        if self.current_stage == "Open Ended":
-            response_var = StringVar()
-            response_text = tk.Entry(self.root, textvariable=response_var, width=50)
-            response_text.grid(row=3, column=1, columnspan=4)
+    while True:
+        response = input('Choose a number (1-5): ')
+        if response in likert_scale:
+            return int(response)
         else:
-            likert_var = tk.IntVar()
-            likert_var.set(0)  # Default value
+            print('Invalid input. Please choose a number between 1 and 10.')
 
-            # Determine the appropriate set of labels based on the current stage
-            if self.current_stage == "Job Roles":
-                likert_labels = self.likert_labels_job_roles
-            else:
-                likert_labels = ["Not at all", "Slightly", "Neutral", "Moderately", "Extremely"]
+def analyze_open_ended_response(response):
+    # Use NLP to extract keywords or topics from the open-ended response
+    doc = nlp(response)
+    keywords = [token.text for token in doc if token.is_alpha and not token.is_stop]
+    return keywords
 
-            for scale_value, label_text in enumerate(likert_labels, start=1):
-                label = tk.Label(self.root, text=label_text, padx=5)
-                label.grid(row=2, column=scale_value, sticky=tk.W)
+open_ended_response_cs = input("What experiences or activities have influenced your interest in the technological field?")
+open_ended_response_it = input("How do you envision your career in the future?")
 
-            for scale_value in range(1, 6):
-                radio_button = tk.Radiobutton(
-                    self.root,
-                    text=str(scale_value),
-                    variable=likert_var,
-                    value=scale_value,
-                    command=self.check_button_state
-                )
-                radio_button.grid(row=3, column=scale_value, padx=5)
+keywords_cs = analyze_open_ended_response(open_ended_response_cs)
+keywords_it = analyze_open_ended_response(open_ended_response_it)
 
-        next_button = tk.Button(self.root, text="Next", command=self.next_stage)
-        next_button.grid(row=4, column=0, columnspan=6, pady=10)
 
-        # Set the label text based on the current stage
-        if self.current_stage == "Courses":
-            job_roles_labels = self.general_it
-        elif self.current_stage == "General":
-            job_roles_labels = self.general_it
-        elif self.current_stage == "Job Roles":
-            job_roles_labels = self.job_roles_it
-        elif self.current_stage == "Open Ended":
-            job_roles_labels = []  # Adjust as needed for open-ended questions
+    
+def compute_recommendation(cs_responses, it_responses):
+    mean_cs = np.mean(cs_responses)
+    mean_it = np.mean(it_responses)
+    variance_cs = np.var(cs_responses, ddof=0)
+    variance_it = np.var(it_responses, ddof=0)
+    z_score = (mean_cs - mean_it) / np.sqrt((variance_cs / len(cs_responses)) + (variance_it / len(it_responses)))
+
+    print(f"Computed z-score: {z_score}")
+    print(f"Computed mean_cs: {mean_cs}")
+    print(f"Computed mean_it: {mean_it}")
+    print(f"Computed variance_cs: {variance_cs}")
+    print(f"Computed variance_it: {variance_it}")
+
+    if abs(z_score) > 1.96:
+        if mean_cs > mean_it:
+            print("Reject null hypothesis. Recommended course: Computer Science (CS).")
         else:
-            job_roles_labels = []  # Set to an empty list or handle other cases
+            print("Reject null hypothesis. Recommended course: Information Technology (IT).")
+    else:
+        print("Accept null hypothesis. No strong recommendation.")
 
-        self.label.config(text=job_roles_labels[self.current_question_idx])
+        # Update the recommendation based on NLP analysis
+    if len(keywords_cs) > len(keywords_it):
+        print("Based on your open-ended responses, you seem more interested in Computer Science.")
+        # You can adjust the recommendation logic accordingly
+    else:
+        print("Based on your open-ended responses, you seem more interested in Information Technology.")
+        # You can adjust the recommendation logic accordingly
 
-        if self.current_stage == "Open Ended":
-            self.responses.append((response_var, "Open Ended"))
-        else:
-            self.responses.append((likert_var, self.current_course_category()))
+# Collect responses for Computer Science (CS) and Information Technology (IT) questions
+cs_responses = [
+    likert_scale_input("Relationships between different kinds of numbers such as natural numbers and integers."),
+    likert_scale_input("Mathematics applied in cryptography, device authentication, and security systems."),
+    likert_scale_input("Solving complex mathematical and logical problems.")
 
+]
 
-    def next_stage(self):
-        if self.current_stage == "Courses":
-            if self.current_course_idx < 9:
-                self.current_course_idx += 1
-                self.label.config(text=self.displayed_courses[self.current_course_idx]["course"])
-            elif self.current_course_idx == 9:
-                self.current_stage = "General"
-                self.current_question_idx = 0
-                self.label.config(text=self.general_it[self.current_question_idx])
-        elif self.current_stage == "General":
-            if self.current_question_idx < len(self.general_it) - 1:
-                self.current_question_idx += 1
-                self.label.config(text=self.general_it[self.current_question_idx])
-            elif self.current_question_idx == len(self.general_it) - 1:
-                self.current_stage = "Job Roles"
-                self.current_question_idx = 0
-                self.label.config(text=self.job_roles_it[self.current_question_idx])
-        elif self.current_stage == "Job Roles":
-            if self.current_question_idx < len(self.job_roles_it) - 1:
-                self.current_question_idx += 1
-                self.label.config(text=self.job_roles_it[self.current_question_idx])
-            elif self.current_question_idx == len(self.job_roles_it) - 1:
-                self.current_stage = "Open Ended"
-                self.current_question_idx = 0
-                self.label.config(text=self.openendedquestions[self.current_question_idx])
-        elif self.current_stage == "Open Ended":
-            if self.current_question_idx < len(self.openendedquestions) - 1:
-                self.current_question_idx += 1
-                self.label.config(text=self.openendedquestions[self.current_question_idx])
-            elif self.current_question_idx == len(self.openendedquestions) - 1:
-                self.analyze_open_ended_responses()
-                self.show_result()
+it_responses = [
+    likert_scale_input("Designing and evaluating computer systems and technologies that people interact with."),
+    likert_scale_input("Creating user-friendly and interactive human computer interfaces."),
+    likert_scale_input("Applying existing technologies to solve real-world challenges.")
 
-    def analyze_response(self, response):
-            # Process the response using spaCy
-            doc = self.nlp(response.lower())
+]
 
-            # Define keywords for IT and CS
-            it_keywords = ["creative", "technology", "security", "implementation", "practical", "web development"]
-            cs_keywords = ["mathematical", "logical", "programming", "theoretical", "algorithms", "machine learning"]
-
-            # Count occurrences of keywords
-            it_counter = sum(1 for token in doc if token.text in it_keywords)
-            cs_counter = sum(1 for token in doc if token.text in cs_keywords)
-
-            # Update counters
-            self.counter_it += it_counter
-            self.counter_cs += cs_counter
-
-            # Move to the next question
-            self.next_stage()
-        
-    def show_result(self):
-        submitted_responses = [var.get() for var, _ in self.responses]
-        # (unchanged code)
-
-        messagebox.showinfo("Survey Complete", f"Thank you for completing the survey!\n\nResults:\nBSIT Counter: {self.counter_it}\nBSCS Counter: {self.counter_cs}\n\nWe recommend you to take {'BSIT' if self.counter_it > self.counter_cs else 'BSCS'}.")
-
-        self.root.destroy()
-
-    def check_button_state(self):
-        # Enable the "Next Course" button only when the user is not at the last question
-        if self.current_course_idx < 9:
-            return
-        self.next_stage()
-
-    def current_course_category(self):
-        return "IT" if self.displayed_courses[self.current_course_idx] in self.courses_it else "CS"
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    survey_app = LikertScaleSurvey(root)
-    root.mainloop()
+# Compute recommendation
+compute_recommendation(cs_responses, it_responses)
