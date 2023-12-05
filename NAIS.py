@@ -1,5 +1,7 @@
 import numpy as np
 import spacy
+from difflib import get_close_matches
+from collections import Counter
 
 # Load English tokenizer, tagger, parser, NER, and word vectors
 nlp = spacy.load("en_core_web_sm")
@@ -27,7 +29,7 @@ cs_keywords = [
     "technology-related certifications", "mentorship in computer science", 
     "technology-related workshops", "coding competitions", 
     "research in computational biology", "computer-assisted design projects", 
-    "technology-related blogs", "social network analysis projects"
+    "technology-related blogs", "social network analysis projects" ,"amogus1"
 ]
 
 it_keywords = [
@@ -52,7 +54,7 @@ it_keywords = [
     "IT law awareness", "social implications of IT understanding", 
     "IT for sustainability projects", "IT for social change projects", 
     "IT in healthcare projects", "IT in finance projects", 
-    "IT in education projects", "future technology trends awareness"
+    "IT in education projects", "future technology trends awareness",
 ]
 
 # Program Title
@@ -78,17 +80,27 @@ def likert_scale_input(question):
         else:
             print('Invalid input. Please choose a number between 1 and 5.')
 
-def analyze_open_ended_response(response):
-    # Use NLP to extract keywords or topics from the open-ended response
-    doc = nlp(response)
-    keywords = [token.text for token in doc if token.is_alpha and not token.is_stop]
-    return keywords
 
+def analyze_open_ended_response(response, keyword_list):
+    # Use NLP to extract keywords or topics from the open-ended response
+    doc = nlp(response.lower())  # Convert to lowercase
+
+    # Initialize a Counter to store counts for each keyword
+    keyword_counts = Counter()
+
+    # Count occurrences of each keyword in the response
+    for token in doc:
+        for keyword in keyword_list:
+            if keyword in token.text.lower():
+                keyword_counts[keyword] += 1
+
+    return keyword_counts
+    
 open_ended_response_cs = input("What experiences or activities have influenced your interest in the technological field?\n")
 open_ended_response_it = input("How do you envision your career in the future?\n")
 
-keywords_cs = analyze_open_ended_response(open_ended_response_cs)
-keywords_it = analyze_open_ended_response(open_ended_response_it)
+keywords_cs = analyze_open_ended_response(open_ended_response_cs, cs_keywords)
+keywords_it = analyze_open_ended_response(open_ended_response_it, it_keywords)
 
 def compute_recommendation(cs_responses, it_responses):
     mean_cs = np.mean(cs_responses)
@@ -111,12 +123,20 @@ def compute_recommendation(cs_responses, it_responses):
     else:
         print("Accept null hypothesis. No strong recommendation.")
 
-        # Update the recommendation based on NLP analysis
-    if len(keywords_cs) > len(keywords_it):
+    count_cs = sum(keywords_cs.values())
+    count_it = sum(keywords_it.values())
+
+    print(count_cs)
+    print(count_it)
+
+    if count_cs > count_it:
         print("Based on your open-ended responses, you seem more interested in Computer Science.")
         # You can adjust the recommendation logic accordingly
-    else:
+    elif count_cs < count_it:
         print("Based on your open-ended responses, you seem more interested in Information Technology.")
+        # You can adjust the recommendation logic accordingly
+    else:
+        print("Based on your open-ended responses, your interests in Computer Science and Information Technology are equally strong.")
         # You can adjust the recommendation logic accordingly
 
 # Collect responses for Computer Science (CS) and Information Technology (IT) questions
