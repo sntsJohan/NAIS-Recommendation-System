@@ -7,54 +7,43 @@ from collections import Counter
 nlp = spacy.load("en_core_web_sm")
 
 # Keywords for Computer Science (CS) and Information Technology (IT) based on open-ended questions
+# Keywords for Computer Science (CS) and Information Technology (IT) based on open-ended questions
 cs_keywords = [
-    "programming projects", "coding challenges", "algorithmic problem-solving",
-    "computer science courses", "mathematics courses", "logic puzzles", 
-    "cryptography challenges", "security workshops", "hackathons", 
-    "software development internships", "machine learning projects", 
-    "artificial intelligence courses", "data science experiences", 
-    "web development projects", "database management projects", 
-    "computer graphics exploration", "computer vision experiments", 
-    "natural language processing projects", "networking projects", 
-    "operating systems exploration", "computer architecture studies", 
-    "robotics projects", "game development experiences", 
-    "virtual reality experiments", "augmented reality projects", 
-    "scientific computing endeavors", "numerical analysis projects", 
-    "big data exploration", "internet of things (IoT) experiments", 
-    "blockchain projects", "quantum computing studies", 
-    "ethical hacking experiences", "digital forensics projects", 
-    "computer ethics exploration", "technology-related volunteering", 
-    "participation in coding communities", "programming language exploration", 
-    "contributions to open-source projects", "coding bootcamps", 
-    "technology-related certifications", "mentorship in computer science", 
-    "technology-related workshops", "coding competitions", 
-    "research in computational biology", "computer-assisted design projects", 
-    "technology-related blogs", "social network analysis projects" ,"amogus1"
+    "programming", "coding", "algorithms",
+    "computer", "mathematics", "logic",
+    "cryptography", "security", "hackathons",
+    "software", "machine learning",
+    "artificial intelligence", "data", "web",
+    "database", "graphics", "vision",
+    "language", "networking", "systems",
+    "architecture", "robotics", "game",
+    "virtual", "augmented", "scientific",
+    "numerical", "big data", "internet",
+    "blockchain", "quantum", "ethical",
+    "digital", "technology", "volunteering",
+    "coding", "language", "open-source",
+    "bootcamps", "certifications", "mentorship",
+    "workshops", "competitions", "biology",
+    "design", "blogs", "social", "amogus1"
 ]
 
 it_keywords = [
-    "IT infrastructure management", "network administration experiences", 
-    "systems analysis projects", "database management experiences", 
-    "web development for career goals", "cloud computing projects", 
-    "cybersecurity experiences", "IT consulting experiences", 
-    "business analysis in IT", "user experience improvement projects", 
-    "human-computer interaction studies", "mobile app development for career", 
-    "e-commerce technology exploration", "IT project management experiences", 
-    "IT governance understanding", "IT strategy planning", 
-    "technology integration projects", "IT service management experiences", 
-    "IT risk management projects", "IT compliance understanding", 
-    "data governance experiences", "data privacy awareness", 
-    "digital transformation experiences", "IoT projects for career goals", 
-    "artificial intelligence applications in IT", "blockchain in IT experiences", 
-    "augmented reality in IT projects", "virtual reality in IT experiences", 
-    "health IT projects", "educational technology exploration", 
-    "telecommunications experiences", "wireless technologies exploration", 
-    "network security projects", "ethical hacking in IT experiences", 
-    "digital forensics in IT projects", "IT ethics understanding", 
-    "IT law awareness", "social implications of IT understanding", 
-    "IT for sustainability projects", "IT for social change projects", 
-    "IT in healthcare projects", "IT in finance projects", 
-    "IT in education projects", "future technology trends awareness",
+    "IT", "network", "systems",
+    "database", "web", "cloud",
+    "cybersecurity", "consulting",
+    "business", "user", "human-computer",
+    "mobile", "e-commerce", "project",
+    "governance", "strategy", "technology",
+    "integration", "service", "risk",
+    "compliance", "data", "privacy",
+    "digital", "IoT", "artificial",
+    "blockchain", "augmented", "virtual",
+    "health", "educational", "telecommunications",
+    "wireless", "network", "ethical",
+    "forensics", "ethics", "law",
+    "social", "sustainability", "change",
+    "healthcare", "finance", "education",
+    "trends"
 ]
 
 # Program Title
@@ -89,18 +78,18 @@ def analyze_open_ended_response(response, keyword_list):
     keyword_counts = Counter()
 
     # Count occurrences of each keyword in the response
-    for token in doc:
-        for keyword in keyword_list:
-            if keyword in token.text.lower():
-                keyword_counts[keyword] += 1
+    for keyword in keyword_list:
+        # Use spaCy's efficient matching capabilities
+        matches = [token.text.lower() for token in doc if keyword.lower() in token.text.lower()]
+        keyword_counts[keyword] = len(matches)
 
     return keyword_counts
-    
-open_ended_response_cs = input("What experiences or activities have influenced your interest in the technological field?\n")
-open_ended_response_it = input("How do you envision your career in the future?\n")
 
-keywords_cs = analyze_open_ended_response(open_ended_response_cs, cs_keywords)
-keywords_it = analyze_open_ended_response(open_ended_response_it, it_keywords)
+open_ended_response = input("What experiences or activities have influenced your interest in the technological field?\n")
+open_ended_response += input("How do you envision your career in the future?\n")
+
+keywords_cs = analyze_open_ended_response(open_ended_response, cs_keywords)
+keywords_it = analyze_open_ended_response(open_ended_response, it_keywords)
 
 def compute_recommendation(cs_responses, it_responses):
     mean_cs = np.mean(cs_responses)
@@ -123,19 +112,20 @@ def compute_recommendation(cs_responses, it_responses):
     else:
         print("Accept null hypothesis. No strong recommendation.")
 
-    count_cs = sum(keywords_cs.values())
-    count_it = sum(keywords_it.values())
 
-    if count_cs > count_it:
+    if keywords_cs > keywords_it:
         print("Based on your open-ended responses, you seem more interested in Computer Science.")
         # You can adjust the recommendation logic accordingly
-    elif count_cs < count_it:
+    elif keywords_cs < keywords_it:
         print("Based on your open-ended responses, you seem more interested in Information Technology.")
         # You can adjust the recommendation logic accordingly
     else:
         print("Based on your open-ended responses, your interests in Computer Science and Information Technology are equally strong.")
         # You can adjust the recommendation logic accordingly
 
+    print(keywords_cs)
+    print(keywords_it)
+1
 # Collect responses for Computer Science (CS) and Information Technology (IT) questions
 cs_responses = [
     likert_scale_input("\nRelationships between different kinds of numbers such as natural numbers and integers."),
