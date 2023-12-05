@@ -55,7 +55,9 @@ it_keywords = [
     "IT in education projects", "future technology trends awareness"
 ]
 
-    
+# Program Title
+print("---=========[NAIS Recommendation System]=========---\n")
+
 def likert_scale_input(question):
     likert_scale = {
         '1': 'Not Interested at All',
@@ -74,7 +76,7 @@ def likert_scale_input(question):
         if response in likert_scale:
             return int(response)
         else:
-            print('Invalid input. Please choose a number between 1 and 10.')
+            print('Invalid input. Please choose a number between 1 and 5.')
 
 def analyze_open_ended_response(response):
     # Use NLP to extract keywords or topics from the open-ended response
@@ -82,14 +84,12 @@ def analyze_open_ended_response(response):
     keywords = [token.text for token in doc if token.is_alpha and not token.is_stop]
     return keywords
 
-open_ended_response_cs = input("What experiences or activities have influenced your interest in the technological field?")
-open_ended_response_it = input("How do you envision your career in the future?")
+open_ended_response_cs = input("What experiences or activities have influenced your interest in the technological field?\n")
+open_ended_response_it = input("How do you envision your career in the future?\n")
 
 keywords_cs = analyze_open_ended_response(open_ended_response_cs)
 keywords_it = analyze_open_ended_response(open_ended_response_it)
 
-
-    
 def compute_recommendation(cs_responses, it_responses):
     mean_cs = np.mean(cs_responses)
     mean_it = np.mean(it_responses)
@@ -97,11 +97,11 @@ def compute_recommendation(cs_responses, it_responses):
     variance_it = np.var(it_responses, ddof=0)
     z_score = (mean_cs - mean_it) / np.sqrt((variance_cs / len(cs_responses)) + (variance_it / len(it_responses)))
 
-    print(f"Computed z-score: {z_score}")
-    print(f"Computed mean_cs: {mean_cs}")
-    print(f"Computed mean_it: {mean_it}")
-    print(f"Computed variance_cs: {variance_cs}")
-    print(f"Computed variance_it: {variance_it}")
+    print(f"\nZ-Score: {z_score}")
+    print(f"Mean for Computer Science: {mean_cs}")
+    print(f"Mean for Information Technology: {mean_it}")
+    print(f"Variance for Computer Science: {variance_cs}")
+    print(f"Variance for Information Technology: {variance_it}")
 
     if abs(z_score) > 1.96:
         if mean_cs > mean_it:
@@ -121,17 +121,15 @@ def compute_recommendation(cs_responses, it_responses):
 
 # Collect responses for Computer Science (CS) and Information Technology (IT) questions
 cs_responses = [
-    likert_scale_input("Relationships between different kinds of numbers such as natural numbers and integers."),
-    likert_scale_input("Mathematics applied in cryptography, device authentication, and security systems."),
-    likert_scale_input("Solving complex mathematical and logical problems.")
-
+    likert_scale_input("\nRelationships between different kinds of numbers such as natural numbers and integers."),
+    likert_scale_input("\nMathematics applied in cryptography, device authentication, and security systems."),
+    likert_scale_input("\nSolving complex mathematical and logical problems.")
 ]
 
 it_responses = [
-    likert_scale_input("Designing and evaluating computer systems and technologies that people interact with."),
-    likert_scale_input("Creating user-friendly and interactive human computer interfaces."),
-    likert_scale_input("Applying existing technologies to solve real-world challenges.")
-
+    likert_scale_input("\nDesigning and evaluating computer systems and technologies that people interact with."),
+    likert_scale_input("\nCreating user-friendly and interactive human computer interfaces."),
+    likert_scale_input("\nApplying existing technologies to solve real-world challenges.")
 ]
 
 # Compute recommendation
