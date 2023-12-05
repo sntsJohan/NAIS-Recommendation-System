@@ -126,9 +126,6 @@ def compute_recommendation(cs_responses, it_responses):
     count_cs = sum(keywords_cs.values())
     count_it = sum(keywords_it.values())
 
-    print(count_cs)
-    print(count_it)
-
     if count_cs > count_it:
         print("Based on your open-ended responses, you seem more interested in Computer Science.")
         # You can adjust the recommendation logic accordingly
@@ -154,3 +151,4 @@ it_responses = [
 
 # Compute recommendation
 compute_recommendation(cs_responses, it_responses)
+
